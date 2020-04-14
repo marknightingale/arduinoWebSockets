@@ -17,13 +17,19 @@ SocketIOclient::~SocketIOclient() {
 
 void SocketIOclient::begin(const char * host, uint16_t port, const char * url, const char * protocol) {
     WebSocketsClient::beginSocketIO(host, port, url, protocol);
-    WebSocketsClient::enableHeartbeat(60 * 1000, 90 * 1000, 5);
+    // WebSocketsClient::enableHeartbeat(60 * 1000, 90 * 1000, 5);
 }
 
 void SocketIOclient::begin(String host, uint16_t port, String url, String protocol) {
     WebSocketsClient::beginSocketIO(host, port, url, protocol);
-    WebSocketsClient::enableHeartbeat(60 * 1000, 90 * 1000, 5);
+    // WebSocketsClient::enableHeartbeat(60 * 1000, 90 * 1000, 5);
 }
+
+void SocketIOclient::beginSSL(const char * host, uint16_t port, const char * url, const char * CA_cert, const char * protocol) {
+    WebSocketsClient::beginSocketIOSSLWithCA(host, port, url, CA_cert, protocol);
+    // WebSocketsClient::enableHeartbeat(60 * 1000, 90 * 1000, 5);
+}
+
 
 /**
  * set callback function
@@ -37,55 +43,14 @@ bool SocketIOclient::isConnected(void) {
     return WebSocketsClient::isConnected();
 }
 
-/**
- * send text data to client
- * @param num uint8_t client id
- * @param type socketIOmessageType_t
- * @param payload uint8_t *
- * @param length size_t
- * @param headerToPayload bool (see sendFrame for more details)
- * @return true if ok
- */
-bool SocketIOclient::send(socketIOmessageType_t type, uint8_t * payload, size_t length, bool headerToPayload) {
-    bool ret = false;
-    if(length == 0) {
-        length = strlen((const char *)payload);
-    }
-    if(clientIsConnected(&_client)) {
-        if(!headerToPayload) {
-            // webSocket Header
-            ret = WebSocketsClient::sendFrameHeader(&_client, WSop_text, length + 2, true);
-            // Engine.IO / Socket.IO Header
-            if(ret) {
-                uint8_t buf[3] = { eIOtype_MESSAGE, type, 0x00 };
-                ret            = WebSocketsClient::write(&_client, buf, 2);
-            }
-            if(ret && payload && length > 0) {
-                ret = WebSocketsClient::write(&_client, payload, length);
-            }
-            return ret;
-        } else {
-            // TODO implement
-        }
-    }
-    return false;
+void SocketIOclient::setExtraHeaders(const char * extraHeaders) {
+  WebSocketsClient::setExtraHeaders(extraHeaders);
+}
+void SocketIOclient::setAuthorization(const char * auth) {
+  WebSocketsClient::setAuthorization(auth);
 }
 
-bool SocketIOclient::send(socketIOmessageType_t type, const uint8_t * payload, size_t length) {
-    return send(type, (uint8_t *)payload, length);
-}
 
-bool SocketIOclient::send(socketIOmessageType_t type, char * payload, size_t length, bool headerToPayload) {
-    return send(type, (uint8_t *)payload, length, headerToPayload);
-}
-
-bool SocketIOclient::send(socketIOmessageType_t type, const char * payload, size_t length) {
-    return send(type, (uint8_t *)payload, length);
-}
-
-bool SocketIOclient::send(socketIOmessageType_t type, String & payload) {
-    return send(type, (uint8_t *)payload.c_str(), payload.length());
-}
 
 /**
  * send text data to client
@@ -96,7 +61,30 @@ bool SocketIOclient::send(socketIOmessageType_t type, String & payload) {
  * @return true if ok
  */
 bool SocketIOclient::sendEVENT(uint8_t * payload, size_t length, bool headerToPayload) {
-    return send(sIOtype_EVENT, payload, length, headerToPayload);
+    bool ret = false;
+    if(length == 0) {
+        length = strlen((const char *)payload);
+    }
+    if(clientIsConnected(&_client)) {
+        if(!headerToPayload) {
+            // webSocket Header
+            ret = WebSocketsClient::sendFrameHeader(&_client, WSop_text, length + 2, true);
+            // Engine.IO / Socket.IO Header
+            if(ret) {
+                uint8_t buf[3] = { eIOtype_MESSAGE, sIOtype_EVENT, 0x00 };
+                ret            = WebSocketsClient::write(&_client, buf, 2);
+            }
+            if(ret && payload && length > 0) {
+                ret = WebSocketsClient::write(&_client, payload, length);
+            }
+            return ret;
+        } else {
+            // TODO implement
+        }
+
+        // return WebSocketsClient::sendFrame(&_client, WSop_text, payload, length, true, true, headerToPayload);
+    }
+    return false;
 }
 
 bool SocketIOclient::sendEVENT(const uint8_t * payload, size_t length) {
@@ -121,7 +109,8 @@ void SocketIOclient::loop(void) {
     if((t - _lastConnectionFail) > EIO_HEARTBEAT_INTERVAL) {
         _lastConnectionFail = t;
         DEBUG_WEBSOCKETS("[wsIOc] send ping\n");
-        WebSocketsClient::sendTXT(eIOtype_PING);
+        DEBUG_WEBSOCKETS("[wsIOc] WTF IS IT DOING THIS\n");
+        // WebSocketsClient::sendTXT(eIOtype_PING);
     }
 }
 
@@ -188,7 +177,7 @@ void SocketIOclient::handleCbEvent(WStype_t type, uint8_t * payload, size_t leng
                     break;
             }
         } break;
-        case WStype_ERROR:
+
         case WStype_BIN:
         case WStype_FRAGMENT_TEXT_START:
         case WStype_FRAGMENT_BIN_START:

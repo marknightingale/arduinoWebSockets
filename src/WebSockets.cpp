@@ -193,6 +193,13 @@ bool WebSockets::sendFrame(WSclient_t * client, WSopcode_t opcode, uint8_t * pay
     }
 
     if(client->status != WSC_CONNECTED) {
+        if (client->status == WSC_NOT_CONNECTED) {
+          DEBUG_WEBSOCKETS("[WS][sendFrame] is WSC_NOT_CONNECTED\n");
+        }
+        if (client->status == WSC_HEADER) {
+          DEBUG_WEBSOCKETS("[WS][sendFrame] is WSC_HEADER\n");
+        }
+
         DEBUG_WEBSOCKETS("[WS][%d][sendFrame] not in WSC_CONNECTED state!?\n", client->num);
         return false;
     }
@@ -595,7 +602,7 @@ bool WebSockets::readCb(WSclient_t * client, uint8_t * out, size_t n, WSreadWait
 
 #else
     unsigned long t = millis();
-    ssize_t len;
+    size_t len;
     DEBUG_WEBSOCKETS("[readCb] n: %zu t: %lu\n", n, t);
     while(n > 0) {
         if(client->tcp == NULL) {
@@ -626,14 +633,11 @@ bool WebSockets::readCb(WSclient_t * client, uint8_t * out, size_t n, WSreadWait
 #if(WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266)
             delay(0);
 #endif
-#if(WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP32)
-            yield();
-#endif
             continue;
         }
 
         len = client->tcp->read((uint8_t *)out, n);
-        if(len > 0) {
+        if(len) {
             t = millis();
             out += len;
             n -= len;

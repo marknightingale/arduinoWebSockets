@@ -48,8 +48,10 @@ class SocketIOclient : protected WebSocketsClient {
 
     void begin(const char * host, uint16_t port, const char * url = "/socket.io/?EIO=3", const char * protocol = "arduino");
     void begin(String host, uint16_t port, String url = "/socket.io/?EIO=3", String protocol = "arduino");
-
+    void beginSSL(const char * host, uint16_t port, const char * url, const char * CA_cert, const char * protocol);
     bool isConnected(void);
+    void setExtraHeaders(const char * extraHeaders);
+    void setAuthorization(const char * auth);
 
     void onEvent(SocketIOclientEvent cbEvent);
 
@@ -58,12 +60,6 @@ class SocketIOclient : protected WebSocketsClient {
     bool sendEVENT(char * payload, size_t length = 0, bool headerToPayload = false);
     bool sendEVENT(const char * payload, size_t length = 0);
     bool sendEVENT(String & payload);
-
-    bool send(socketIOmessageType_t type, uint8_t * payload, size_t length = 0, bool headerToPayload = false);
-    bool send(socketIOmessageType_t type, const uint8_t * payload, size_t length = 0);
-    bool send(socketIOmessageType_t type, char * payload, size_t length = 0, bool headerToPayload = false);
-    bool send(socketIOmessageType_t type, const char * payload, size_t length = 0);
-    bool send(socketIOmessageType_t type, String & payload);
 
     void loop(void);
 
