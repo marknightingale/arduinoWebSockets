@@ -109,8 +109,7 @@ void SocketIOclient::loop(void) {
     if((t - _lastConnectionFail) > EIO_HEARTBEAT_INTERVAL) {
         _lastConnectionFail = t;
         DEBUG_WEBSOCKETS("[wsIOc] send ping\n");
-        DEBUG_WEBSOCKETS("[wsIOc] WTF IS IT DOING THIS\n");
-        // WebSocketsClient::sendTXT(eIOtype_PING);
+        WebSocketsClient::sendTXT(eIOtype_PING);
     }
 }
 
