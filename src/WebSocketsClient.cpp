@@ -156,7 +156,7 @@ void WebSocketsClient::loop(void) {
 
 #if defined(HAS_SSL)
         if(_client.isSSL) {
-            DEBUG_WEBSOCKETS("[WS-Client] connect wss...\n");
+            DEBUG_WEBSOCKETS("[WS-Client] connect wss FFFF...\n");
             if(_client.ssl) {
                 delete _client.ssl;
                 DEBUG_WEBSOCKETS("[WS-CLIENT] A");
@@ -175,7 +175,7 @@ void WebSocketsClient::loop(void) {
               DEBUG_WEBSOCKETS("[WS-CLIENT] G");
                 DEBUG_WEBSOCKETS("[WS-Client] setting CA certificate");
 #if defined(ESP32)
-DEBUG_WEBSOCKETS("[WS-CLIENT] H");
+  DEBUG_WEBSOCKETS("[WS-CLIENT] H");
                 //_client.ssl->setCACert(_CA_cert);
 #elif defined(ESP8266)
                 _client.ssl->setCACert((const uint8_t *)_CA_cert, strlen(_CA_cert) + 1);
