@@ -163,7 +163,9 @@ void WebSocketsClient::loop(void) {
                 _client.tcp = NULL;
             }
             _client.ssl = new WEBSOCKETS_NETWORK_SSL_CLASS();
+            Serial.println("THIS IS PRESETINSECURE");
             _client.ssl->setInsecure();
+            Serial.println("THIS IS POSTSETINSECURE");
             _client.tcp = _client.ssl;
             if(_CA_cert) {
                 DEBUG_WEBSOCKETS("[WS-Client] setting CA certificate");
