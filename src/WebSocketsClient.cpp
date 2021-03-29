@@ -159,18 +159,24 @@ void WebSocketsClient::loop(void) {
             DEBUG_WEBSOCKETS("[WS-Client] connect wss...\n");
             if(_client.ssl) {
                 delete _client.ssl;
+                DEBUG_WEBSOCKETS("[WS-CLIENT] A");
                 _client.ssl = NULL;
                 _client.tcp = NULL;
+                DEBUG_WEBSOCKETS("[WS-CLIENT] B");
             }
+            DEBUG_WEBSOCKETS("[WS-CLIENT] C");
             _client.ssl = new WEBSOCKETS_NETWORK_SSL_CLASS();
-            Serial.println("THIS IS PRESETINSECURE");
+            DEBUG_WEBSOCKETS("[WS-CLIENT] D");
             _client.ssl->setInsecure();
-            Serial.println("THIS IS POSTSETINSECURE");
+            DEBUG_WEBSOCKETS("[WS-CLIENT] E");
             _client.tcp = _client.ssl;
+            DEBUG_WEBSOCKETS("[WS-CLIENT] F");
             if(_CA_cert) {
+              DEBUG_WEBSOCKETS("[WS-CLIENT] G");
                 DEBUG_WEBSOCKETS("[WS-Client] setting CA certificate");
 #if defined(ESP32)
-                _client.ssl->setCACert(_CA_cert);
+DEBUG_WEBSOCKETS("[WS-CLIENT] H");
+                //_client.ssl->setCACert(_CA_cert);
 #elif defined(ESP8266)
                 _client.ssl->setCACert((const uint8_t *)_CA_cert, strlen(_CA_cert) + 1);
 #else
